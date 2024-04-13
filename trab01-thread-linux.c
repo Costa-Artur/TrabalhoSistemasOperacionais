@@ -3,17 +3,16 @@
 #include <unistd.h>
 
 int valor_total = 0;
+int itens_recebidos = 0;
 int peso_total = 0;
 pthread_mutex_t em = PTHREAD_MUTEX_INITIALIZER;
 
-int alteraValor( int delta, int peso ) {
-    int novo_valor;
-
+void alteraValor( int delta, int peso ) {
     pthread_mutex_lock(&em);
     valor_total += delta;
     peso_total += peso;
+    itens_recebidos += delta;
     pthread_mutex_unlock(&em);
-    return novo_valor;
 }
 
 void thread_esteira_um (void) {
@@ -35,8 +34,9 @@ void thread_esteira_dois (void) {
 void thread_display (void) {
     while(1)
     {
-        if(valor_total % 10 == 0) {
+        if(itens_recebidos >= 10) {
             printf("Peso atual: %d\n", peso_total);
+            itens_recebidos = 0;
         } 
         sleep(2);
         printf("Produtos passados: %d\n", valor_total);
